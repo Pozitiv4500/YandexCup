@@ -92,7 +92,7 @@ def reduced_row_echelon_form(matrix):
     return matrix
 
 
-mat = []
+'''mat = []
 for j in range(m):
     mat_row = []
     for i in range(1, n + 1):
@@ -101,9 +101,44 @@ for j in range(m):
     mat.append(mat_row)
 result = reduced_row_echelon_form(mat)
 x4 = 0
-for i in range(len(result)):
-    while (-result[i][3] * x4 - result[i][4]).denominator != 1:
-        print((-result[i][3] * x4 - result[i][4]).denominator)
-        x4 += 1
 
-print(x4)
+'''
+
+def mod_inverse(a, mod):
+    return pow(a, mod - 2, mod)
+def gauss_mod(matrix, mod):
+    rows = len(matrix)
+    cols = len(matrix[0])
+    for i in range(min(rows, cols - 1)):
+        for j in range(i, rows):
+            if matrix[j][i] != 0:
+                matrix[i], matrix[j] = matrix[j], matrix[i]
+                break
+        inv = mod_inverse(matrix[i][i], mod)
+        for k in range(i, cols):
+            matrix[i][k] = (matrix[i][k] * inv) % mod
+        for j in range(i + 1, rows):
+            factor = matrix[j][i]
+            for k in range(i, cols):
+                matrix[j][k] = (matrix[j][k] - factor * matrix[i][k]) % mod
+    for i in range(min(rows, cols - 1) - 1, -1, -1):
+        for j in range(i):
+            factor = matrix[j][i]
+            for k in range(i, cols):
+                matrix[j][k] = (matrix[j][k] - factor * matrix[i][k]) % mod
+
+    return matrix
+
+matrix = []
+for j in range(m):
+    row = []
+    for i in range(1, n + 1):
+        row.append(pow(X[j], i - 1, 23))
+    row.append(B[j])
+    matrix.append(row)
+result = gauss_mod(matrix, 23)
+password_indices = [int(result[i][-1]) for i in range(len(result))]
+while len(password_indices) != n:
+    password_indices.append(0)
+password = ''.join(ascii_lowercase[i] for i in password_indices)
+print(password)
